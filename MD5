@@ -1,0 +1,9 @@
+42c7dd034007983102eb76d722e53d72 *DESCRIPTION
+4770a72c3071c9afc96e8b8d3a90c9ab *NAMESPACE
+1b1e794c102705cf347670e70fad2daf *R/RsqMed.R
+64d28dc4aa8ce864a7eddba31408ed88 *R/RsqMed_sd.R
+ddce269a1e3d054cae349621c198dd52 *data/datalist
+58e7ed111f1afe1ba1b257fbfdeedeb4 *data/example.rda
+b1d8b8fe4a035cf3a8f05f57d4facabe *man/CI.Rsq.measure.Rd
+e42d2ef97d1548d354807b6d817a184b *man/Rsq.measure.Rd
+fd499adc04aba5a36eeb15d1a1454e25 *man/example.Rd
