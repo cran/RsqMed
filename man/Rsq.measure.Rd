@@ -2,47 +2,56 @@
 % Please edit documentation in R/RsqMed.R
 \name{Rsq.measure}
 \alias{Rsq.measure}
-\title{Function to calculate the Rsq function as a total mediation effect size measure (Gaussian outcome only). If method='iSIS', a two-step procedure is performed, where the first step filters the non-mediators based on part of the data and the second step calculates the point estimates for Rsq using random-effect models on the remaining data. If method='ALL', Rsq is calculated based on all subjects and variables.}
+\title{Function to calculate the Rsq function as a total mediation effect size measure (Gaussian outcome only). If method = 'iSIS', a two-step procedure is performed, where the first step filters the non-mediators based on the first p proportion of the data and the second step calculates the point estimates for Rsq using random-effect models on the remaining data. If method = 'ALL', Rsq is calculated based on all subjects and mediators (assuming all mediators are the true mediators). It is optional to adding filtering step on putative mediators to exclude M1 type of non-mediators (See Yang et al, BMC bioinformatics, 2021).}
 \usage{
-Rsq.measure(p = 1/2, outcome, med, covar, indp, method = c("iSIS",
-  "ALL"), iter.max = 10, nsis = NULL, init.cutoff = 0.1,
-  screening = FALSE)
+Rsq.measure(
+  p = 1/2,
+  Y,
+  M,
+  Covar = NULL,
+  X,
+  method = c("iSIS", "ALL"),
+  iter.max = 3,
+  nsis = NULL,
+  init.FDR.cutoff = 0.1,
+  filtering = FALSE
+)
 }
 \arguments{
-\item{p}{Proportion of the training dataset for selecting mediators regarding the whole dataset, default is set as 1/2. If method='ALL', keep p at default.}
+\item{p}{Proportion of the training dataset for selecting mediators regarding the whole dataset, default is set as 1/2. If method = 'ALL', all subjects are included.}
 
-\item{outcome}{Vector of outcome type of interest; Only Gaussian distributed outcome is accepted.}
+\item{Y}{Vector of outcome; Only Gaussian distributed outcome is accepted.}
 
-\item{med}{Matrix of putative mediators}
+\item{M}{Matrix of putative mediators}
 
-\item{covar}{Covariate matrix}
+\item{Covar}{Covariate matrix or vector, default = NULL}
 
-\item{indp}{Vector of the independent variable of interest, e.g. environmental variable}
+\item{X}{Vector of the independent variable of interest, e.g. environmental variable}
 
-\item{method}{Method used to screen out non-mediators. When no variable selection is required, method='ALL'; otherwise, iterative sure independence screening (SIS) is used for variable selection, i.e., method='iSIS'. Note that when method='ALL', no screening is performed, i.e., the Rsq measure is calculated on all data and all variables included.}
+\item{method}{Method used to screen out M2 type of non-mediators. When method = 'ALL', no variable selection is performed and Rsq is calculated on all data; otherwise, iterative sure independence screening (SIS) is performed on training dataset, i.e., method = 'iSIS'.}
 
-\item{iter.max}{Maximum number of iteration used in iSIS, default=10 (please refer the SIS package for detail explanation)}
+\item{iter.max}{Maximum number of iteration used in iSIS, default = 3}
 
-\item{nsis}{Number of variables recruited by iterative SIS}
+\item{nsis}{Number of variables recruited by iterative SIS (please refer the SIS package for detailed explanations)}
 
-\item{init.cutoff}{The percentage of mediators remaining after the screening step.}
+\item{init.FDR.cutoff}{FDR threshold for the filtering.}
 
-\item{screening}{T if filtering mediators based on the strength of independent variable and mediators as a preprocessing step; F if all putative mediators are included, default=F.}
+\item{filtering}{When filtering = T, filtering based on the strength of independent variable and mediators is performed; When filtering = F, no preprocessing is performed before variable selection. By default filtering = F.}
 }
 \value{
-Output vector consist of Rsq mediated(Rsq.mediated), shared over simple effects (SOS), number of selected mediators (pab), and the Rsq that used to calculate the Rsq measure: variance of outcome explained by mediator (Rsq.YM), variance of outcome explained by the independent variable (Rsq.YX), and variance of outcome explained by mediator and independent variable (Rsq.YMX), n is the sample size based on which the random effect models are fitted.
+Output Vector consists of Rsq mediated(Rsq.mediated), shared over simple effects (SOS), number of selected mediators (pab), and the Rsq that used to calculate the Rsq measure: variance of outcome explained by mediator (Rsq.YM), variance of outcome explained by the independent variable (Rsq.YX), and variance of outcome explained by mediator and independent variable (Rsq.YMX), n.train is the sample size on which variable selection is performed, n.estimate is the sample size based on which the mediation effect is estimated.
 
-Name of selected mediators (select)
+Name of selected putative mediators (select). Note that M1 type of non-mediators may still be included in the model, but it would not impact the estimation of total mediation effect under certain assumptions.
 }
 \description{
-Function to calculate the Rsq function as a total mediation effect size measure (Gaussian outcome only). If method='iSIS', a two-step procedure is performed, where the first step filters the non-mediators based on part of the data and the second step calculates the point estimates for Rsq using random-effect models on the remaining data. If method='ALL', Rsq is calculated based on all subjects and variables.
+Function to calculate the Rsq function as a total mediation effect size measure (Gaussian outcome only). If method = 'iSIS', a two-step procedure is performed, where the first step filters the non-mediators based on the first p proportion of the data and the second step calculates the point estimates for Rsq using random-effect models on the remaining data. If method = 'ALL', Rsq is calculated based on all subjects and mediators (assuming all mediators are the true mediators). It is optional to adding filtering step on putative mediators to exclude M1 type of non-mediators (See Yang et al, BMC bioinformatics, 2021).
 }
 \examples{
 {
-#\donttest{
+\dontrun{
 data(example)
 attach(example)
-Rsq.measure(p=1/2, outcome=Y, med=M,covar=Cov,indp=X,method='iSIS', iter.max=1)
-#}
+Rsq.measure(p=1/2, Y=Y, M=M,Covar=Cov,X=X,method='iSIS', iter.max=1, filtering=TRUE)
+}
 }
 }

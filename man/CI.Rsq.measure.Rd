@@ -4,20 +4,30 @@
 \alias{CI.Rsq.measure}
 \title{Functions to generate the confidence interval of the Rsq measure using nonparametric bootstrap.}
 \usage{
-CI.Rsq.measure(p = 1/2, outcome, med, covar, indp, method = c("iSIS",
-  "All"), B = 200, iter.max = 10, nsis = NULL, init.cutoff = 0.1,
-  screening = F)
+CI.Rsq.measure(
+  p = 1/2,
+  Y,
+  M,
+  Covar = NULL,
+  X,
+  method = c("iSIS", "ALL"),
+  B = 200,
+  iter.max = 3,
+  nsis = NULL,
+  init.FDR.cutoff = 0.1,
+  filtering = F
+)
 }
 \arguments{
 \item{p}{Proportion of the training dataset for selecting mediators regarding to the whole dataset, default is set as 1/2}
 
-\item{outcome}{Vector of outcome type of interest; Only Gaussian distributed outcome is accepted.}
+\item{Y}{Vector of outcome type of interest; Only Gaussian distributed outcome is accepted.}
 
-\item{med}{Matrix of putative mediators}
+\item{M}{Matrix of putative mediators}
 
-\item{covar}{Covariate matrix}
+\item{Covar}{Covariate matrix}
 
-\item{indp}{Vector of the independent variable of interest, e.g. environmental exposure}
+\item{X}{Vector of the exposure or independent variable of interest, e.g. environmental exposure}
 
 \item{method}{Method used to screen out non-mediators. When no variable selection is required, method='ALL'; otherwise, iterative sure independence screening (SIS) is used for variable selection, i.e., method='iSIS'.}
 
@@ -27,9 +37,9 @@ CI.Rsq.measure(p = 1/2, outcome, med, covar, indp, method = c("iSIS",
 
 \item{nsis}{Number of pedictors recruited by iSIS}
 
-\item{init.cutoff}{The percentage of mediators remaining after the screening step.}
+\item{init.FDR.cutoff}{FDR threshold for the filtering method on M1 type of mediators.}
 
-\item{screening}{T: filtering mediators based on the strength of indp and mediators as a preprocessing step; F: all putative mediators are included, default=F.}
+\item{filtering}{T: filtering mediators based on the strength of indp and mediators as a preprocessing step; F: all putative mediators are included, default=F.}
 }
 \value{
 CI: The 95 percent confidence intervals of Rsq measure (Rsq.mediated), shared over simple effects (SOS), number of mediators selected (pab), variance of outcome explained by mediator (Rsq.YM), variance of outcome explained by the independent variable (Rsq.YX), and variance of outcome explained by mediator and independent variable (Rsq.YMX). The estimates for each bootstrap are also returned.
@@ -39,10 +49,10 @@ Functions to generate the confidence interval of the Rsq measure using nonparame
 }
 \examples{
 {
- \donttest{
+ \dontrun{
 data(example)
 attach(example)
-CI.Rsq.measure( p=1/2, outcome=Y,med=M[,1:2],covar=NULL,indp=X,method='ALL', B=1)
+CI.Rsq.measure( p=1/2, Y=Y,M=M,X=X,method='ALL', B=1, iter.max=1)
 }
 }
 }
