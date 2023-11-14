@@ -8,8 +8,8 @@
 #' @param method Method used to screen out M2 type of non-mediators. When method = 'ALL', no variable selection is performed and Rsq is calculated on all data; otherwise, iterative sure independence screening (SIS) is performed on training dataset, i.e., method = 'iSIS'. 
 #' @param iter.max Maximum number of iteration used in iSIS, default = 3 
 #' @param nsis Number of variables recruited by iterative SIS (please refer the SIS package for detailed explanations)
-#' @param filtering When filtering = T, filtering based on the strength of independent variable and mediators is performed; When filtering = F, no preprocessing is performed before variable selection. By default filtering = F.
-#' @param init.FDR.cutoff FDR threshold for the filtering. 
+#' @param filtering When filtering = TRUE, filtering based on the strength of independent variable and mediators after SIS is performed; When filtering = FALSE, no preprocessing is performed before variable selection. By default filtering = FALSE.
+#' @param init.FDR.cutoff FDR threshold for the filtering after SIS. 
 #' @return Output Vector consists of Rsq mediated(Rsq.mediated), shared over simple effects (SOS), number of selected mediators (pab), and the Rsq that used to calculate the Rsq measure: variance of outcome explained by mediator (Rsq.YM), variance of outcome explained by the independent variable (Rsq.YX), and variance of outcome explained by mediator and independent variable (Rsq.YMX), n.train is the sample size on which variable selection is performed, n.estimate is the sample size based on which the mediation effect is estimated. 
 #' @return Name of selected putative mediators (select). Note that M1 type of non-mediators may still be included in the model, but it would not impact the estimation of total mediation effect under certain assumptions. 
 #' @export
@@ -37,8 +37,8 @@ Rsq.measure<-function(p=1/2, Y,M,Covar=NULL,X,method=c('iSIS','ALL'), iter.max=3
    train <- 1:(nrow(M)*p)
    test <- (nrow(M)*p + 1):length(X)
    if (max(train) < 20) stop('Please specifiy a larger training dataset!')
-   if (method == 'ALL' & filtering == F) message('Note: the analysis is performed on all included variables and data.')
-   if (method =='ALL' & filtering == T) message('Note: Filtering on M1 type of non-mediators will not be performed. ')
+   if (method == 'ALL' & filtering == FALSE) message('Note: the analysis is performed on all included variables and data.')
+   if (method =='ALL' & filtering == TRUE) message('Note: Filtering on M1 type of non-mediators will not be performed. ')
 
    if (is.null(colnames(M))) {
     	message("Column name of putative Mediators are not specified. Naming the M by its position in the dataset. ") 
@@ -64,7 +64,7 @@ Rsq.measure<-function(p=1/2, Y,M,Covar=NULL,X,method=c('iSIS','ALL'), iter.max=3
    res.m <- stats::residuals(f1) 
    res.med <- cbind(res.med, res.m)
    }
-   res.med <- apply(res.med, 2,scale,center=T, scale=T)   
+   res.med <- apply(res.med, 2,scale,center=TRUE, scale=TRUE)   
    colnames(res.med) <- colnames(M)
    
    y.train <- res.y[train]
@@ -82,23 +82,11 @@ Rsq.measure<-function(p=1/2, Y,M,Covar=NULL,X,method=c('iSIS','ALL'), iter.max=3
    expo.test <- X[test]
    }
 
-   # optional filtering step by FDR on alpha
-   cal_alpha_simple<-function(x){
-   data2 <- data.frame(Med=x,envir=expo.train)
-   l<-summary(stats::lm('Med ~.', data=data2))
-   invalphap<-(l$coefficients)['envir','Pr(>|t|)']
-   return(invalphap)
-   }
-   # keep the top candidates for ultra high dimensional data
-   if(filtering & method !='ALL') {
-   inv.alpha.p<-apply(Med.train,2, cal_alpha_simple)
-   alpha.fdr <- stats::p.adjust(inv.alpha.p, method='fdr')
-   order <- which(alpha.fdr < init.FDR.cutoff) 
-   } else order <- 1:ncol(Med.train)
+   order <- 1:ncol(Med.train)
 
    #med <- med[,order, drop=F]
-   Med.train <- Med.train[,order, drop=F]
-   Med.test <- Med.test[,order, drop=F]
+   Med.train <- Med.train[,order, drop=FALSE]
+   Med.test <- Med.test[,order, drop=FALSE]
 
    #regress Y on X
    tdat <- data.frame(y=y.train, x=expo.train) 
@@ -114,7 +102,7 @@ Rsq.measure<-function(p=1/2, Y,M,Covar=NULL,X,method=c('iSIS','ALL'), iter.max=3
    res.m.train <- stats::residuals(f1) 
    res.med.train <- cbind(res.med.train, res.m.train)
    }
-   res.med.train <- apply(res.med.train, 2,scale,center=T, scale=T)   
+   res.med.train <- apply(res.med.train, 2,scale,center=TRUE, scale=TRUE)   
   
    #perform variable selection
    if (method == 'iSIS'){
@@ -133,7 +121,7 @@ Rsq.measure<-function(p=1/2, Y,M,Covar=NULL,X,method=c('iSIS','ALL'), iter.max=3
    }
 
    #in the testing data  
-   sy<-stats::sd(y.test,na.rm=T)
+   sy<-stats::sd(y.test,na.rm=TRUE)
  
    #Y~X
    testing <- data.frame(pheno=y.test,  envir=expo.test)
@@ -145,16 +133,35 @@ Rsq.measure<-function(p=1/2, Y,M,Covar=NULL,X,method=c('iSIS','ALL'), iter.max=3
 
    if (pab==0) {
    output <- c(Rsq.mediated=0,SOS=0, pab=0, Rsq.YM=0, Rsq.YX=Rsq.YX, Rsq.YMX=Rsq.YX, total=total, abproduct=0, n.train=length(y.train), n.estimate=length(y.test))
-   paste0("There is no mediators selected.")
+   message("There is no mediators selected.")
    return(list(output=output, select=NULL))
    } else {
 
-   if (method=='iSIS') Med <- Med.test[,select,drop=F] else Med <- Med.test
-   Med <- apply(Med, 2,scale,center=T, scale=T)
-
+   if (method=='iSIS') Med <- Med.test[,select,drop=FALSE] else Med <- Med.test
+   Med <- apply(Med, 2,scale,center=TRUE, scale=TRUE)
+   
+    # optional filtering step by FDR on alpha
+   cal_alpha_simple<-function(x){
+   data2 <- data.frame(Med=x,envir=expo.train)
+   l<-summary(stats::lm('Med ~.', data=data2))
+   invalphap<-(l$coefficients)['envir','Pr(>|t|)']
+   return(invalphap)
+   }
+   # keep the top candidates for ultra high dimensional data
+    if (filtering){
+   inv.alpha.p<-apply(Med.train[,select, drop=FALSE],2, cal_alpha_simple)
+   alpha.fdr <- stats::p.adjust(inv.alpha.p, method='fdr')
+   order <- which(alpha.fdr < init.FDR.cutoff) 
+   if (length(order)==0)  {output <- c(Rsq.mediated=0,SOS=0, pab=0, Rsq.YM=0, Rsq.YX=Rsq.YX, Rsq.YMX=Rsq.YX, total=total, abproduct=0, n.train=length(y.train), n.estimate=length(y.test))
+   message("There is no mediators selected.")
+   return(list(output=output, select=NULL))} else { Med <- Med[,order,drop=FALSE]; 
+   	pab=ncol(Med)}
+   } 
+   
+   #calculate pab, and filtering M by FDR 
    #Y~M+X
    Kins <- as.matrix(Med)%*%t(as.matrix(Med))
-   expo.std = scale(expo.test,center=T, scale=T)
+   expo.std = scale(expo.test,center=TRUE, scale=TRUE)
    testing <- data.frame(res=y.test, expo=expo.std)
    colnames(Kins) <- rownames(Kins) <- 1:nrow(testing)
   

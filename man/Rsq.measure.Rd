@@ -34,9 +34,9 @@ Rsq.measure(
 
 \item{nsis}{Number of variables recruited by iterative SIS (please refer the SIS package for detailed explanations)}
 
-\item{init.FDR.cutoff}{FDR threshold for the filtering.}
+\item{init.FDR.cutoff}{FDR threshold for the filtering after SIS.}
 
-\item{filtering}{When filtering = T, filtering based on the strength of independent variable and mediators is performed; When filtering = F, no preprocessing is performed before variable selection. By default filtering = F.}
+\item{filtering}{When filtering = TRUE, filtering based on the strength of independent variable and mediators after SIS is performed; When filtering = FALSE, no preprocessing is performed before variable selection. By default filtering = FALSE.}
 }
 \value{
 Output Vector consists of Rsq mediated(Rsq.mediated), shared over simple effects (SOS), number of selected mediators (pab), and the Rsq that used to calculate the Rsq measure: variance of outcome explained by mediator (Rsq.YM), variance of outcome explained by the independent variable (Rsq.YX), and variance of outcome explained by mediator and independent variable (Rsq.YMX), n.train is the sample size on which variable selection is performed, n.estimate is the sample size based on which the mediation effect is estimated.

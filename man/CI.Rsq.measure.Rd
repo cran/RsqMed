@@ -15,7 +15,7 @@ CI.Rsq.measure(
   iter.max = 3,
   nsis = NULL,
   init.FDR.cutoff = 0.1,
-  filtering = F
+  filtering = FALSE
 )
 }
 \arguments{
@@ -39,7 +39,7 @@ CI.Rsq.measure(
 
 \item{init.FDR.cutoff}{FDR threshold for the filtering method on M1 type of mediators.}
 
-\item{filtering}{T: filtering mediators based on the strength of indp and mediators as a preprocessing step; F: all putative mediators are included, default=F.}
+\item{filtering}{TRUE: filtering mediators based on the strength of indp and mediators as a preprocessing step; FALSE: all putative mediators are included, default=FALSE.}
 }
 \value{
 CI: The 95 percent confidence intervals of Rsq measure (Rsq.mediated), shared over simple effects (SOS), number of mediators selected (pab), variance of outcome explained by mediator (Rsq.YM), variance of outcome explained by the independent variable (Rsq.YX), and variance of outcome explained by mediator and independent variable (Rsq.YMX). The estimates for each bootstrap are also returned.
@@ -49,7 +49,7 @@ Functions to generate the confidence interval of the Rsq measure using nonparame
 }
 \examples{
 {
- \dontrun{
+ \donttest{
 data(example)
 attach(example)
 CI.Rsq.measure( p=1/2, Y=Y,M=M,X=X,method='ALL', B=1, iter.max=1)

@@ -50,7 +50,7 @@ Function to calculate the Rsq function as a total effect size measure for mediat
 }
 \examples{
 {
-\dontrun{
+\donttest{
 data(example)
 attach(example)
 CF_Rsq.measure(Y=Y, M=M, X=X, tune = "bic", penalty = "MCP")

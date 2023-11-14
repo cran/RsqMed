@@ -15,7 +15,7 @@
 #' @return Name of selected mediators in subsample 2 (select2)
 #' @export
 #' @examples{
-#'\dontrun{
+#'\donttest{
 #' data(example)
 #' attach(example)
 #'CF_Rsq.measure(Y=Y, M=M, X=X, tune = "bic", penalty = "MCP")
@@ -34,7 +34,7 @@ CF_Rsq.measure <- function(Y, M, Covar = NULL, X, iter.max = 3, nsis = NULL, fir
    if (length(unique(Y)) < 3) message('Warning: Current algorithm can only deal with continuous outcome.')
    if (is.vector(M)) stop('This algorithm does not support single mediator model.')
    if (is.null(colnames(M))) {
-    	print("Column name of Mediators are not specified. Naming the M by its position in the dataset. ") 
+    	message("Column name of Mediators are not specified. Naming the M by its position in the dataset. ") 
     	colnames(M) <- paste0('M', 1:ncol(M))
     	}
    if (sum(is.na(Y)) + sum(is.na(M)) + sum(is.na(Covar)) + sum(is.na(X)) > 0) stop('Algorithm cannot deal with missing data! Impute or subset the data first. ')
@@ -143,7 +143,7 @@ CF_Rsq.measure <- function(Y, M, Covar = NULL, X, iter.max = 3, nsis = NULL, fir
     A1 <- stats::cov(err1)
     
   }else{
-    paste0("There is no mediators selected in the 1st half")
+    message("There is no mediators selected in the 1st half")
   }
 
 # ------ Subset 2 Estimation ------
@@ -185,7 +185,7 @@ CF_Rsq.measure <- function(Y, M, Covar = NULL, X, iter.max = 3, nsis = NULL, fir
     A2 <- stats::cov(err2)
     
   }else{
-    paste0("There is no mediators selected in the 2nd half")
+    message("There is no mediators selected in the 2nd half")
   }
   
   if(length(m1) > 0 & length(m2) > 0){
